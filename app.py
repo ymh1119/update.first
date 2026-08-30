@@ -263,6 +263,6 @@ if prompt := st.chat_input("输入你的问题，或展开左侧面板复制符�
             except Exception as e:
                 st.error(f"❌ 系统发生异常: {e}")
                 
-        # 对话生成结束。如果触发了智能改名，强制刷新页面使得侧边栏实时生效
-        if was_renamed:
-            st.rerun()
+# =========【关键修复！！刷新语句已经完全移出assistant聊天块，不再嵌套在with内部】=========
+if was_renamed:
+    st.rerun()
