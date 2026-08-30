@@ -2,13 +2,11 @@ import os
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
-
 # ========== faiss容错占位（防止云端缺少faiss库崩溃，当前文件本身未使用faiss） ==========
 try:
     import faiss
 except ImportError:
     faiss = None
-
 # ==========================================
 # 专家专属系统提示词模板库 (修复y轴问题 + 多轮对话升级版)
 # ==========================================
@@ -47,7 +45,7 @@ EXPERT_PROMPTS = {
 - 模板 B (画奇异信号/冲激函数 \\delta)：
   严禁使用极大值代表无穷！必须使用带有箭头的线段，并且【面积必须加括号】写在箭头旁边：
   plt.annotate('', xy=(t0, height), xytext=(t0, 0), arrowprops=dict(arrowstyle='->', color='navy', lw=1.5))
-  plt.text(t0 + 0.05, height, f'({{area_str}})', ha='left', va='bottom')
+  plt.text(t0 + 0.05, height, f'({area_str})', ha='left', va='bottom')
 - 模板 C (离散傅里叶变换 FFT 防错)：
   严禁直接 plot fft 结果！必须进行 fftshift 移位保证零频在中心：
   X = np.fft.fftshift(np.fft.fft(x))
