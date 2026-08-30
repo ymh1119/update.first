@@ -223,7 +223,6 @@ if prompt := st.chat_input("输入你的问题，或展开左侧面板复制符�
                     ai_reply = response.content
                 else:
                     ai_reply = str(response)
-
                 # ============【新增：自动查询课本页码，追加至回答末尾】============
                 page_info = search_knowledge_page(prompt)
                 ai_reply = ai_reply + page_info
