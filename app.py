@@ -28,14 +28,17 @@ st.markdown("""
 # 2. 文本解析组件
 # ==========================================
 def render_markdown_with_latex(text):
-    """自动将大模型的 LaTeX 符号转换为 Streamlit 支持的格式"""
+    """自动将大模型的 LaTeX 符号转换为 Streamlit 支持的格式，增加异常捕获防止前端DOM报错"""
     if not isinstance(text, str):
         return
-    # 替换独立公式块
-    text = text.replace('\\[', '$$').replace('\\]', '$$')
-    # 替换行内公式
-    text = text.replace('\\(', '$').replace('\\)', '$')
-    st.markdown(text)
+    try:
+        # 替换独立公式块
+        text = text.replace('\\[', '$$').replace('\\]', '$$')
+        # 替换行内公式
+        text = text.replace('\\(', '$').replace('\\)', '$')
+        st.markdown(text)
+    except Exception:
+        st.markdown(text)
 # ==========================================
 # 3. 登录认证模块 (带密码)
 # ==========================================
@@ -158,9 +161,12 @@ for i, msg in enumerate(messages):
             with st.expander("📋 点击展开以一键复制全文"):
                 st.code(msg["content"], language="markdown")
         
-        # 如果是历史记录里的画图专家回复，调用模块渲染出带微调台的图像
+        # 如果是历史记录里的画图专家回复，调用模块渲染出带微调台的图像，添加异常防护
         if "📊" in selected_expert and msg["role"] == "assistant":
-            plot_core.render_interactive_plot(msg["content"], msg_index=f"history_{i}")
+            try:
+                plot_core.render_interactive_plot(msg["content"], msg_index=f"history_{i}")
+            except Exception:
+                st.warning("历史波形绘图渲染异常，已跳过")
 # ==========================================
 # 8. AI 调用与数据库写入
 # ==========================================
@@ -236,9 +242,12 @@ if prompt := st.chat_input("输入你的问题，或展开左侧面板复制符�
                 with st.expander("📋 点击展开以一键复制全文"):
                     st.code(ai_reply, language="markdown")
                 
-                # 3. 若当前是绘图专家，调用外包模块输出可微调图像
+                # 3. 若当前是绘图专家，调用外包模块输出可微调图像，增加异常防护
                 if "📊" in selected_expert:
-                    plot_core.render_interactive_plot(ai_reply, msg_index=f"new_{datetime.datetime.now().timestamp()}")
+                    try:
+                        plot_core.render_interactive_plot(ai_reply, msg_index=f"new_{datetime.datetime.now().timestamp()}")
+                    except Exception:
+                        st.warning("本次波形绘图渲染异常，已跳过")
                     
                 # 4. 将本次完整交互连同精准时间戳存入云数据库
                 db_core.log_interaction(
