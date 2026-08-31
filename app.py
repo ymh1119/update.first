@@ -36,14 +36,6 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
     st.session_state.username = ""
-# 新增标记：延迟重命名刷新标记
-if "need_session_rerun" not in st.session_state:
-    st.session_state.need_session_rerun = False
-
-# 如果标记置位，本轮页面加载直接刷新（在下一轮交互起点执行，避开chat_message渲染区）
-if st.session_state.need_session_rerun:
-    st.session_state.need_session_rerun = False
-    st.rerun()
 
 st.sidebar.title("🔐 用户登录")
 if not st.session_state.logged_in:
@@ -166,9 +158,6 @@ if prompt := st.chat_input("输入你的问题，或展开左侧面板复制符�
             old_session_name,
             new_session_name
         )
-    # 如果发生重命名：只打标记，**不在AI回复块内部执行rerun**
-    if was_renamed:
-        st.session_state.need_session_rerun = True
 
     bj_tz = timezone(timedelta(hours=8))
     current_time = datetime.datetime.now(bj_tz).strftime("%Y年%m月%d日 %H:%M:%S")
@@ -224,3 +213,7 @@ if prompt := st.chat_input("输入你的问题，或展开左侧面板复制符�
                 st.error("🔑 发生错误：未能从系统配置(Secrets)中找到 API_KEY，请检查配置！")
             except Exception as e:
                 st.error(f"❌ 系统发生异常: {e}")
+
+    # 全部聊天渲染完毕后再刷新，规避DOM报错
+    if was_renamed:
+        st.rerun()
